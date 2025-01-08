@@ -34,6 +34,7 @@ O objetivo deste projeto é construir um pipeline ETL robusto para processar e a
 - [`sales_data.csv`](sales_data.csv): Dados de vendas brutos fictícios.
 - [`README.md`](README.md): Documentação do projeto.
 - [`requirements.txt`](requirements.txt): Dependências do projeto.
+- [`gcp_key.json`](gcp_key.json): Chave de autenticação para o Google Cloud Platform.
 
 ## Instalação
 
@@ -66,6 +67,37 @@ O objetivo deste projeto é construir um pipeline ETL robusto para processar e a
    ```sh
    python data_loading/to_big_query.py
    ```
+
+# Detalhamento do Carregamento para o BigQuery
+
+## Configuração do Ambiente no GCP
+
+1. Criação do Dataset no BigQuery:
+   - Acesse o console do Google Cloud Platform e crie um dataset chamado sales_data por exemplo.
+
+2. Configuração da Autenticação:
+   - Gere uma chave JSON para a conta de serviço do projeto no GCP.
+   - Salve a chave como gcp_key.json na raiz do repositório.
+   - Configure a variável de ambiente no terminal:
+```sh
+export GOOGLE_APPLICATION_CREDENTIALS=gcp_key.json
+```
+## Execução do Script to_big_query.py
+
+1. Localize o Arquivo Transformado:
+   - Certifique-se de que o arquivo transformed_sales_data.csv está na pasta data_transformation/transformed_data/.
+
+2. Execute o Script:
+   ```sh
+   python data_loading/to_big_query.py
+  ```
+3. Verifique a Saída:
+   - O terminal deve exibir uma mensagem confirmando o carregamento com sucesso, como:
+   ```sh
+   Dados carregados com sucesso na tabela pipeline-projeto-vendas.sales_data.transformed_sales_data. Total de linhas: 100
+   ```
+4. Validação no Console do BigQuery:
+   - Navegue até o dataset sales_data no GCP e abra a tabela transformed_sales_data para validar os dados carregados.
    
 ## Contribuição
 

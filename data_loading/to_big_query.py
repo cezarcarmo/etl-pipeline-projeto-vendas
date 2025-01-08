@@ -1,49 +1,44 @@
-from google.cloud import bigquery
+import os
 import pandas as pd
+from google.cloud import bigquery
 
-# Configurações
-project_id = "pipeline-projeto-vendas"
-dataset_id = "sales_data"  # Substitua pelo nome do seu dataset
-table_id = "transformed_sales"  # Nome da tabela no BigQuery
+# Configuração do caminho para o arquivo de chave JSON
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcp_key.json"
 
-# Caminho para o arquivo CSV transformado
-csv_path = "etl-pipeline-projeto-vendas/data_transformation/transformed_data/transformed_sales_data.csv"
+# Função para carregar os dados transformados no BigQuery
+def load_to_bigquery(file_path, dataset_id, table_name):
+    """
+    Carrega um arquivo transformado (CSV) para o BigQuery.
 
-# Inicializar cliente BigQuery
-client = bigquery.Client()
+    Args:
+        file_path (str): Caminho para o arquivo de dados transformados.
+        dataset_id (str): ID do dataset no BigQuery.
+        table_name (str): Nome da tabela no BigQuery.
+    """
+    # Inicializa o cliente BigQuery
+    client = bigquery.Client()
 
-# Carregar dados CSV para um DataFrame
-print("Carregando dados do CSV...")
-df = pd.read_csv(csv_path)
+    # Lê os dados do arquivo CSV
+    df = pd.read_csv(file_path)
 
-# Configurar esquema (opcional)
-schema = [
-    bigquery.SchemaField("sale_id", "STRING"),
-    bigquery.SchemaField("customer_name", "STRING"),
-    bigquery.SchemaField("customer_email", "STRING"),
-    bigquery.SchemaField("product", "STRING"),
-    bigquery.SchemaField("quantity", "INTEGER"),
-    bigquery.SchemaField("price_per_unit", "FLOAT"),
-    bigquery.SchemaField("sale_date", "DATE"),
-    bigquery.SchemaField("total_revenue", "FLOAT"),
-    bigquery.SchemaField("price_category", "STRING"),
-]
-
-# Configurar job de carregamento
-table_ref = f"{project_id}.{dataset_id}.{table_id}"
-job_config = bigquery.LoadJobConfig(
-    schema=schema,
-    source_format=bigquery.SourceFormat.CSV,
-    skip_leading_rows=1,
-    autodetect=False,
-)
-
-# Enviar dados para o BigQuery
-print(f"Carregando dados para {table_ref}...")
-with open(csv_path, "rb") as source_file:
-    job = client.load_table_from_file(
-        source_file, table_ref, job_config=job_config
+    # Configuração do job
+    table_id = f"{dataset_id}.{table_name}"
+    job_config = bigquery.LoadJobConfig(
+        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,  # Substitui dados existentes
+        autodetect=True,  # Detecta tipos automaticamente
     )
-job.result()  # Esperar o job completar
 
-print(f"Dados carregados com sucesso em {table_ref}.")
+    # Carrega os dados
+    job = client.load_table_from_dataframe(df, table_id, job_config=job_config)
+    job.result()  # Aguarda a conclusão
+
+    # Verifica o status
+    table = client.get_table(table_id)
+    print(f"Dados carregados com sucesso na tabela {table_id}. Total de linhas: {table.num_rows}")
+
+# Exemplo de uso
+if __name__ == "__main__":
+    file_path = "data_transformation/transformed_data/transformed_sales_data.csv"  # Caminho para o arquivo transformado
+    dataset_id = "pipeline-projeto-vendas.sales_data"  # Substitua pelo ID do seu dataset no BigQuery
+    table_name = "transformed_sales_data"  # Nome da tabela no BigQuery
+    load_to_bigquery(file_path, dataset_id, table_name)
