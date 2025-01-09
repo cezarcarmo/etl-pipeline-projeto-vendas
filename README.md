@@ -90,16 +90,24 @@ export GOOGLE_APPLICATION_CREDENTIALS=gcp_key.json
    - Certifique-se de que o arquivo transformed_sales_data.csv está na pasta data_transformation/transformed_data/.
 
 2. Execute o Script:
-   ```sh
+   
+   ```sh   
    python data_loading/to_big_query.py
-  ```
+   ```
+   	
+
 3. Verifique a Saída:
-   - O terminal deve exibir uma mensagem confirmando o carregamento com sucesso, como:
+
    ```sh
    Dados carregados com sucesso na tabela pipeline-projeto-vendas.sales_data.transformed_sales_data. Total de linhas: 100
    ```
+
 4. Validação no Console do BigQuery:
    - Navegue até o dataset sales_data no GCP e abra a tabela transformed_sales_data para validar os dados carregados.
+
+
+
+
    
 ## Contribuição
 
