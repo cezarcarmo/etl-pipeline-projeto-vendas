@@ -1,5 +1,7 @@
 # ETL Pipeline: Projeto de Vendas
 
+![Diagrama do Pipeline](arquitetura.png)
+
 Este repositório contém um pipeline ETL (Extract, Transform, Load) desenvolvido para processar dados de vendas. O objetivo é extrair os dados brutos, transformá-los conforme as regras de negócios e carregá-los em um banco de dados na nuvem, utilizando ferramentas modernas e escaláveis.
 
 ## Objetivo do Projeto
